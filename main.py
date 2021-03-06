@@ -2,6 +2,10 @@ import requests
 import csv
 from pprint import pprint
 import json
+import geojson
+import shapely
+import csv
+
 
 URL = "http://www.aisgzk.kz/aisgzk/Proxy/aisgzkZem2/MapServer/"
 ADDITIONAL_PARAMS = "&geometryType=esriGeometryPoint&sr=3857&mapExtent=7944789.369315789%2C6654446.452306012%2C7944809.273951744%2C6654467.205336286&layers=all%3A259"
@@ -16,7 +20,7 @@ HEADERS = {
     "Accept-Language": "ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7"
 }
 
-def make_url() -> str:
+def make_url(point) -> str:
     """
     make url from point (X,Y) in 3857 srid
     """
@@ -37,6 +41,27 @@ def get_rings_coords(url:str) -> list:
     else:
         return json_response
 
+def get_points() -> list:
+    """
+    Read csv and get points
+    return: list with list points [[x,y],[x1,x2] ...]
+    """
+    points = []
+    with open('points.csv', newline='') as csvfile:
+        reader = csv.reader(csvfile, delimiter=',')
+        
+        for row in reader:
+            points.appends(row[1:])
+    return points
+
+def get_extent(point: list) -> str:
+    """
+    Return points + 10 meter 
+    return: map entend
+    """
+    x , y = point[0],point[1]
+    result = "{}%2C{}%2C{}%2C{}".format(x-10,y-10,x+10,y+10)
+    return result
 
 def get_wkt(rings:list) -> str:
     """
@@ -51,15 +76,25 @@ def get_wkt(rings:list) -> str:
     pol_template = "POLYGON(({}))".format(coords)
     return pol_template
 
+def make_geojson_from_wkt(wkt:str)-> str:
+    """
+    return: One geojson Feature
+    TODO: add feature properties from kadastr
+    """
+
+    geometry = shapely.wkt.loads(wkt)
+    feature = geojson.Feature(geometry = geometry ,properties={})
+    return feature
+
+
 
 def main():
-    url = URL + "identify?f=json&tolerance=1&returnGeometry=true&returnFieldName=false&returnUnformattedValues=false&imageDisplay=610%2C636%2C96&geometry=%7B%22x%22%3A7944803.530974813%2C%22y%22%3A6654456.600407293%7D&geometryType=esriGeometryPoint&sr=3857&mapExtent=7944789.369315789%2C6654446.452306012%2C7944809.273951744%2C6654467.205336286&layers=all%3A259"
-
-    r = get_rings_coords(url)
-    print(r)
-    wkt = get_wkt(r)
-    print(wkt)
-
+    # url = URL + "identify?f=json&tolerance=1&returnGeometry=true&returnFieldName=false&returnUnformattedValues=false&imageDisplay=610%2C636%2C96&geometry=%7B%22x%22%3A7944803.530974813%2C%22y%22%3A6654456.600407293%7D&geometryType=esriGeometryPoint&sr=3857&mapExtent=7932824.574822295%2C6641695.465075217%2C7953206.922039978%2C6662946.568075949&layers=all%3A259"
+    # response = get_rings_coords(url) # can return empty list
+    
+    # wkt = get_wkt(response)
+    # print(wkt) 
+    get_points()
 
 
 if __name__ == "__main__":
