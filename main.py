@@ -35,7 +35,7 @@ def get_rings_coords(url:str) -> list:
         rings = json_response[0]["geometry"]["rings"][0]
         return rings
     else:
-        print(json_response)
+        return json_response
 
 
 def get_wkt(rings:list) -> str:
