@@ -3,7 +3,7 @@ import csv
 from pprint import pprint
 import json
 import geojson
-import shapely
+import shapely.wkt
 import csv
 
 
@@ -20,11 +20,12 @@ HEADERS = {
     "Accept-Language": "ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7"
 }
 
-def make_url(point) -> str:
+def make_point(point) -> str:
     """
     make url from point (X,Y) in 3857 srid
     """
-    pass
+    point = '{{"x":{},"y":{}}}'.format(point[0],point[1])
+    return point
 
 def get_rings_coords(url:str) -> list:
     """
@@ -51,7 +52,7 @@ def get_points() -> list:
         reader = csv.reader(csvfile, delimiter=',')
         
         for row in reader:
-            points.appends(row[1:])
+            points.append(row[1:])
     return points
 
 def get_extent(point: list) -> str:
@@ -60,7 +61,7 @@ def get_extent(point: list) -> str:
     return: map entend
     """
     x , y = point[0],point[1]
-    result = "{}%2C{}%2C{}%2C{}".format(x-10,y-10,x+10,y+10)
+    result = "{},{},{},{}".format(str(float(x)-10),str(float(y)-10),str(float(x)+10),str(float(y)+10))
     return result
 
 def get_wkt(rings:list) -> str:
@@ -70,9 +71,10 @@ def get_wkt(rings:list) -> str:
     
     """
     coords = ""
-    for ring in rings:
+    for ring in rings[:-1]:
         line = " ".join(map(str,ring)) + ","
         coords+=line
+    coords+=" ".join(map(str,rings[-1]))
     pol_template = "POLYGON(({}))".format(coords)
     return pol_template
 
@@ -89,13 +91,38 @@ def make_geojson_from_wkt(wkt:str)-> str:
 
 
 def main():
+
     # url = URL + "identify?f=json&tolerance=1&returnGeometry=true&returnFieldName=false&returnUnformattedValues=false&imageDisplay=610%2C636%2C96&geometry=%7B%22x%22%3A7944803.530974813%2C%22y%22%3A6654456.600407293%7D&geometryType=esriGeometryPoint&sr=3857&mapExtent=7932824.574822295%2C6641695.465075217%2C7953206.922039978%2C6662946.568075949&layers=all%3A259"
     # response = get_rings_coords(url) # can return empty list
     
     # wkt = get_wkt(response)
-    # print(wkt) 
-    get_points()
+    # print(wkt)
+    
+    points = get_points()
+    features = []
+    for point in points:
+        point_url = make_point(point)
+        extent = get_extent(point)
+        url = "http://www.aisgzk.kz/aisgzk/Proxy/aisgzkZem2/MapServer/identify?f=json&tolerance=1&returnGeometry=true&returnFieldName=false&returnUnformattedValues=false&imageDisplay=610%2C636%2C96&geometry={geometry}&geometryType=esriGeometryPoint&sr=3857&mapExtent={extent}&layers=all%3A259" \
+                .format(extent = extent, geometry = point_url )
+        response = get_rings_coords(url)
+        if response:
+            wkt = get_wkt(response) 
+            feature = make_geojson_from_wkt(wkt)
+            features.append(feature)
+        else:
+            pass
+    print(features)
+    featrs_collection = geojson.FeatureCollection(features)
+    dump = geojson.dumps(featrs_collection,sort_keys=True)
+    with open("output.geojson","w") as file:
+        file.write(dump)
+    print(featrs_collection)
 
+    #make Feature Collection and geojson file
+
+#TODO add crs
+#TODO do not read first line when reading csv
 
 if __name__ == "__main__":
     main()

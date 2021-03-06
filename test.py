@@ -1,6 +1,6 @@
 import unittest
 import requests
-from main import get_rings_coords, get_wkt, make_url
+from main import get_rings_coords, get_wkt
 
 
 class RequestTest(unittest.TestCase):
