@@ -2,6 +2,6 @@
 <h2>this script downloads map from aisgzk</h2>
 </br>
 example output
-<img></img>
+<img src ="./media/Screenshot_2.png"></img>
 
 
