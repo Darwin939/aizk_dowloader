@@ -53,10 +53,10 @@ def get_wkt(rings:list) -> str:
 
 
 def main():
-    # url = URL + "identify?f=json&tolerance=1&returnGeometry=true&returnFieldName=false&returnUnformattedValues=false&imageDisplay=610%2C636%2C96&geometry=%7B%22x%22%3A7944803.530974813%2C%22y%22%3A6654456.600407293%7D&geometryType=esriGeometryPoint&sr=3857&mapExtent=7944789.369315789%2C6654446.452306012%2C7944809.273951744%2C6654467.205336286&layers=all%3A259"
-    url = "http://www.aisgzk.kz/aisgzk/Proxy/aisgzkZem2/MapServer/identify?f=json&tolerance=1&returnGeometry=true&returnFieldName=false&returnUnformattedValues=false&imageDisplay=610%2C636%2C96&geometry=%7B%22x%22%3A7944865.56165178%2C%22y%22%3A6654452.032130188%7D&geometryType=esriGeometryPoint&sr=3857&mapExtent=7944635.84257453%2C6654209.782921452%2C7944954.316749808%2C6654541.831405841&layers=all%3A259"
+    url = URL + "identify?f=json&tolerance=1&returnGeometry=true&returnFieldName=false&returnUnformattedValues=false&imageDisplay=610%2C636%2C96&geometry=%7B%22x%22%3A7944803.530974813%2C%22y%22%3A6654456.600407293%7D&geometryType=esriGeometryPoint&sr=3857&mapExtent=7944789.369315789%2C6654446.452306012%2C7944809.273951744%2C6654467.205336286&layers=all%3A259"
 
     r = get_rings_coords(url)
+    print(r)
     wkt = get_wkt(r)
     print(wkt)
 
