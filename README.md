@@ -1,5 +1,5 @@
 # aizk_dowloader
-<h2>this script downloads map from aisgzk</h2>
+<h3>this script downloads map features from aisgzk (Kazakhstan kadast map)</h3>
 </br>
 example output
 <img src ="./media/Screenshot_2.png"></img>
